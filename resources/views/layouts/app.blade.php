@@ -35,8 +35,6 @@
                     Relatório de Agendamentos
                 </a>
 
-
-
                 <a href="{{ route('clients.index') }}"
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('clients*') ? 'bg-pink-600' : '' }}">
                     Clientes
@@ -51,7 +49,6 @@
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('professionals*') ? 'bg-pink-600' : '' }}">
                     Profissionais
                 </a>
-
 
                 <!-- Relatórios -->
                 <hr class="border-gray-700 my-2">
@@ -71,6 +68,20 @@
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('reports/finance/yearly') ? 'bg-pink-600' : '' }}">
                     Anual
                 </a>
+
+                <!-- 🔔 ALERTA DE ANIVERSARIANTES -->
+                <hr class="border-gray-700 my-2">
+                <span class="text-gray-400 text-xs uppercase px-4">Alertas</span>
+
+                <a href="{{ route('reports.birthdays') }}"
+                    class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('reports/birthdays') ? 'bg-pink-600' : '' }}">
+                    🎂 Aniversariantes
+                    @if(isset($countBirthdays) && $countBirthdays > 0)
+                        <span class="ml-2 bg-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $countBirthdays }}
+                        </span>
+                    @endif
+                </a>
             </nav>
 
             <!-- Usuário -->
@@ -88,9 +99,9 @@
         <!-- Main content -->
         <main class="flex-1 p-6">
             @if(session('success'))
-            <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
-                {{ session('success') }}
-            </div>
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                    {{ session('success') }}
+                </div>
             @endif
 
             {{-- Aqui vai o conteúdo de cada página --}}
@@ -98,5 +109,4 @@
         </main>
     </div>
 </body>
-
 </html>

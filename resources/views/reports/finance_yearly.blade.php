@@ -25,13 +25,13 @@
             <p class="text-lg font-bold">{{ $appointments->count() }}</p>
             <p class="text-sm uppercase">Pagamentos</p>
         </div>
-        <div class="bg-emerald-100 text-emerald-700 p-4 rounded-lg text-center shadow-sm">
-            <p class="text-lg font-bold">
-                R$ {{ number_format((float)$total, 2, ',', '.') }}
-            </p>
 
+        <div class="bg-emerald-100 text-emerald-700 p-4 rounded-lg text-center shadow-sm">
+            {{-- ✅ valor já formatado no controller --}}
+            <p class="text-lg font-bold">R$ {{ $total }}</p>
             <p class="text-sm uppercase">Total Recebido</p>
         </div>
+
         <div class="bg-gray-100 text-gray-700 p-4 rounded-lg text-center shadow-sm">
             <p class="text-lg font-bold">{{ $year }}</p>
             <p class="text-sm uppercase">Ano</p>

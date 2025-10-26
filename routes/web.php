@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+
+// Controllers
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClientController;
@@ -9,10 +11,11 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\BirthdayReportsController;
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Públicas
+| 🔓 Rotas Públicas
 |--------------------------------------------------------------------------
 */
 
@@ -31,32 +34,25 @@ Route::post('/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Protegidas (somente usuários logados)
+| 🔐 Rotas Protegidas (usuário autenticado)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard principal
-    Route::get('/dashboard', [App\Http\Controllers\AppointmentController::class, 'calendar'])
-        ->name('dashboard');
-
+    // Painel principal (abre o calendário)
+    Route::get('/dashboard', [AppointmentController::class, 'calendar'])->name('dashboard');
 
     /*
     |--------------------------------------------------------------------------
-    | 🔹 CALENDÁRIO — deve vir antes do resource
+    | 📅 CALENDÁRIO — FullCalendar
     |--------------------------------------------------------------------------
     */
-    // Eventos do FullCalendar (JSON)
-    Route::get('/appointments/events', [AppointmentController::class, 'events'])
-        ->name('appointments.events');
-
-    // Visualização do calendário interativo
-    Route::get('/calendar', [AppointmentController::class, 'calendar'])
-        ->name('appointments.calendar');
+    Route::get('/appointments/events', [AppointmentController::class, 'events'])->name('appointments.events');
+    Route::get('/calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
 
     /*
     |--------------------------------------------------------------------------
-    | CRUDs principais
+    | 🧾 CRUDs principais
     |--------------------------------------------------------------------------
     */
     Route::resource('clients', ClientController::class);
@@ -64,13 +60,13 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('professionals', ProfessionalController::class);
     Route::resource('appointments', AppointmentController::class);
 
-    // 💸 Marcar agendamento como pago
+    // 💸 Ação rápida — marcar agendamento como pago
     Route::patch('/appointments/{id}/mark-paid', [AppointmentController::class, 'markAsPaid'])
         ->name('appointments.markPaid');
 
     /*
     |--------------------------------------------------------------------------
-    | Relatórios Financeiros
+    | 💰 Relatórios Financeiros
     |--------------------------------------------------------------------------
     */
     Route::prefix('reports/finance')->group(function () {
@@ -81,7 +77,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Relatório de Agendamentos
+    | 📋 Relatório de Agendamentos
     |--------------------------------------------------------------------------
     */
     Route::get('/reports/appointments', [AppointmentController::class, 'report'])
@@ -89,17 +85,29 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Perfil do Usuário
+    | 🎂 Relatório de Aniversários
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/reports/birthdays', [BirthdayReportsController::class, 'index'])
+        ->name('reports.birthdays');
+
+    /*
+    |--------------------------------------------------------------------------
+    | 👤 Perfil do Usuário
     |--------------------------------------------------------------------------
     */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // 🔹 Rota de teste de e-mail
+    /*
+    |--------------------------------------------------------------------------
+    | ✉️ Teste de Envio de E-mail
+    |--------------------------------------------------------------------------
+    */
     Route::get('/teste-email', function () {
         try {
             \Illuminate\Support\Facades\Mail::raw(
-                'Olá Diuly 💖! Este é um teste de envio de e-mail via Gmail no GlowTime.',
+                'Olá! Este é um teste de envio de e-mail via Gmail no GlowTime 💅',
                 function ($message) {
                     $message->to('teuemail@gmail.com')
                         ->subject('📩 Teste de Envio de E-mail - GlowTime');

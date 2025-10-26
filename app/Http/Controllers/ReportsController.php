@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Appointment;
 use Illuminate\Http\Request;
+use App\Models\Appointment;
 use Carbon\Carbon;
 
 class ReportsController extends Controller
@@ -13,51 +13,50 @@ class ReportsController extends Controller
      */
     public function financeDaily(Request $request)
     {
-        $date = $request->query('date', now()->toDateString());
+        $date = $request->input('date', Carbon::today()->toDateString());
 
         $appointments = Appointment::with(['client', 'service', 'professional'])
             ->whereDate('date', $date)
             ->where('payment_status', 'paid')
+            ->orderBy('start_time')
             ->get();
 
-        $total = $appointments->sum('price_cents') / 100;
+        $totalCents = $appointments->sum('price_cents');
+        $total = number_format($totalCents / 100, 2, ',', '.');
 
         return view('reports.finance_daily', [
             'appointments' => $appointments,
-            'total' => number_format($total, 2, ',', '.'),
             'date' => $date,
+            'total' => $total,
         ]);
     }
 
     /**
      * 🔹 Relatório Mensal
      */
-   public function financeMonthly(Request $request)
-{
-    $month = $request->input('month', now()->month);
-    $year = $request->input('year', now()->year);
+    public function financeMonthly(Request $request)
+    {
+        $month = $request->input('month', now()->month);
+        $year  = $request->input('year', now()->year);
 
-    // 🔹 Filtra apenas agendamentos pagos do mês e ano selecionados
-    $appointments = \App\Models\Appointment::whereYear('date', $year)
-        ->whereMonth('date', $month)
-        ->where('payment_status', 'paid')
-        ->with(['client', 'service', 'professional'])
-        ->orderBy('date', 'asc')
-        ->get();
+        $appointments = Appointment::with(['client', 'service', 'professional'])
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->where('payment_status', 'paid')
+            ->orderBy('date', 'asc')
+            ->get();
 
-    // 🔹 Corrige cálculo — SOMA em centavos e só depois divide por 100
-    $totalCents = $appointments->sum('price_cents');
-    $total = number_format($totalCents / 100, 2, ',', '.');
+        // 🔸 Soma total em centavos e formata corretamente
+        $totalCents = $appointments->sum('price_cents');
+        $total = number_format($totalCents / 100, 2, ',', '.');
 
-    // 🔹 Retorna para a view
-    return view('reports.finance_monthly', [
-        'appointments' => $appointments,
-        'total' => $total,
-        'month' => $month,
-        'year' => $year,
-    ]);
-}
-
+        return view('reports.finance_monthly', [
+            'appointments' => $appointments,
+            'total' => $total,
+            'month' => $month,
+            'year' => $year,
+        ]);
+    }
 
     /**
      * 🔹 Relatório Anual
@@ -71,11 +70,12 @@ class ReportsController extends Controller
             ->where('payment_status', 'paid')
             ->get();
 
-        $total = $appointments->sum('price_cents') / 100;
+        $totalCents = $appointments->sum('price_cents');
+        $total = number_format($totalCents / 100, 2, ',', '.');
 
         return view('reports.finance_yearly', [
             'appointments' => $appointments,
-            'total' => number_format($total, 2, ',', '.'),
+            'total' => $total,
             'year' => $year,
         ]);
     }
