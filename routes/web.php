@@ -31,15 +31,28 @@ Route::post('/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Protegidas (somente para usuários logados)
+| Rotas Protegidas (somente usuários logados)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard principal
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\AppointmentController::class, 'calendar'])
+        ->name('dashboard');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 🔹 CALENDÁRIO — deve vir antes do resource
+    |--------------------------------------------------------------------------
+    */
+    // Eventos do FullCalendar (JSON)
+    Route::get('/appointments/events', [AppointmentController::class, 'events'])
+        ->name('appointments.events');
+
+    // Visualização do calendário interativo
+    Route::get('/calendar', [AppointmentController::class, 'calendar'])
+        ->name('appointments.calendar');
 
     /*
     |--------------------------------------------------------------------------
@@ -51,13 +64,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('professionals', ProfessionalController::class);
     Route::resource('appointments', AppointmentController::class);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Eventos e JSON para o FullCalendar
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/appointments/events', [AppointmentController::class, 'events'])
-        ->name('appointments.events');
+    // 💸 Marcar agendamento como pago
+    Route::patch('/appointments/{id}/mark-paid', [AppointmentController::class, 'markAsPaid'])
+        ->name('appointments.markPaid');
 
     /*
     |--------------------------------------------------------------------------
@@ -85,4 +94,20 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // 🔹 Rota de teste de e-mail
+    Route::get('/teste-email', function () {
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                'Olá Diuly 💖! Este é um teste de envio de e-mail via Gmail no GlowTime.',
+                function ($message) {
+                    $message->to('teuemail@gmail.com')
+                        ->subject('📩 Teste de Envio de E-mail - GlowTime');
+                }
+            );
+            return '✅ E-mail enviado com sucesso!';
+        } catch (\Exception $e) {
+            return '❌ Erro ao enviar e-mail: ' . $e->getMessage();
+        }
+    });
 });
