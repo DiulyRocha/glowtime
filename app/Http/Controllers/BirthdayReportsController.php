@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+
+
 
 class BirthdayReportsController extends Controller
 {

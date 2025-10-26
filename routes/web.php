@@ -99,6 +99,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+    // Configurações
+    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'edit'])->name('settings.edit');
+    Route::post('/settings', [App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+
+
+
     /*
     |--------------------------------------------------------------------------
     | ✉️ Teste de Envio de E-mail
