@@ -68,6 +68,13 @@
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('reports/finance/yearly') ? 'bg-pink-600' : '' }}">
                     Anual
                 </a>
+<hr class="border-gray-700 my-2">
+<span class="text-gray-400 text-xs uppercase px-4">Configurações</span>
+
+<a href="{{ route('settings.index') }}"
+   class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('settings') ? 'bg-pink-600' : '' }}">
+   Desconto de Aniversário
+</a>
 
                 <!-- 🔔 ALERTA DE ANIVERSARIANTES -->
                 <hr class="border-gray-700 my-2">

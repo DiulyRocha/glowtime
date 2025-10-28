@@ -99,9 +99,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Configurações
-    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'edit'])->name('settings.edit');
-    Route::post('/settings', [App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+    // ⚙️ Configurações do Sistema
+    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
 
 
 

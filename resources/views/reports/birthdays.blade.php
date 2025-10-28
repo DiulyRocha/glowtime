@@ -6,23 +6,44 @@
         🎂 Relatório de Aniversariantes
     </h1>
 
-    {{-- 🔹 Filtro de período --}}
+    {{-- 🔹 FILTRO DE PERÍODO --}}
     <form method="GET" action="{{ route('reports.birthdays') }}" class="mb-6 flex flex-wrap items-end gap-3">
+
         <div>
             <label class="block text-sm text-gray-600 font-semibold">Período:</label>
             <select name="range" class="border rounded px-3 py-2 focus:ring-pink-500 focus:border-pink-500">
                 <option value="today"  {{ $range == 'today' ? 'selected' : '' }}>Hoje</option>
                 <option value="week"   {{ $range == 'week' ? 'selected' : '' }}>Esta semana</option>
-                <option value="month"  {{ $range == 'month' ? 'selected' : '' }}>Este mês</option>
+                <option value="month"  {{ $range == 'month' ? 'selected' : '' }}>Mês específico</option>
             </select>
         </div>
+
+        {{-- 🔸 Filtro de Mês --}}
+        <div>
+            <label class="block text-sm text-gray-600 font-semibold">Mês:</label>
+            <select name="month" class="border rounded px-3 py-2 focus:ring-pink-500 focus:border-pink-500">
+                @foreach(range(1, 12) as $m)
+                    <option value="{{ $m }}" {{ $m == $selectedMonth ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- 🔸 Filtro de Ano --}}
+        <div>
+            <label class="block text-sm text-gray-600 font-semibold">Ano:</label>
+            <input type="number" name="year" value="{{ $selectedYear }}"
+                class="border rounded px-3 py-2 w-24 focus:ring-pink-500 focus:border-pink-500">
+        </div>
+
         <button type="submit"
             class="bg-pink-600 hover:bg-pink-500 text-white font-medium px-4 py-2 rounded transition">
             🔍 Ver
         </button>
     </form>
 
-    {{-- 🔹 Resumo --}}
+    {{-- 🔹 RESUMO --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-pink-100 text-pink-800 p-4 rounded-lg text-center shadow-sm">
             <p class="text-lg font-bold">{{ $list->count() }}</p>
@@ -36,58 +57,58 @@
 
         <div class="bg-gray-100 text-gray-700 p-4 rounded-lg text-center shadow-sm">
             <p class="text-lg font-bold">
-                {{ $range == 'today' ? 'Hoje' : ($range == 'week' ? 'Semana Atual' : 'Mês Atual') }}
+                {{ $range == 'today' ? 'Hoje' : ($range == 'week' ? 'Semana Atual' : \Carbon\Carbon::create()->month($selectedMonth)->translatedFormat('F') . '/' . $selectedYear) }}
             </p>
             <p class="text-sm uppercase">Período Selecionado</p>
         </div>
     </div>
 
-    {{-- 🔹 Alertas (próximos 10 dias) --}}
+    {{-- 🔹 ALERTAS (PRÓXIMOS 10 DIAS) --}}
     @if($alerts->count() > 0)
-        <div class="mb-8">
-            <h2 class="text-lg font-semibold text-pink-600 mb-2">🎉 Próximos Aniversários (10 dias)</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full border border-gray-200 rounded text-left">
-                    <thead class="bg-pink-100 text-pink-700">
-                        <tr>
-                            <th class="p-2">Nome</th>
-                            <th class="p-2">E-mail</th>
-                            <th class="p-2">Telefone</th>
-                            <th class="p-2 text-center">Data</th>
-                            <th class="p-2 text-center">Idade</th>
-                            <th class="p-2 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($alerts as $c)
-                        <tr class="border-t hover:bg-gray-50">
-                            <td class="p-2 font-medium">{{ $c->name }}</td>
-                            <td class="p-2">{{ $c->email }}</td>
-                            <td class="p-2">{{ $c->phone }}</td>
-                            <td class="p-2 text-center">{{ \Carbon\Carbon::parse($c->birth_date)->format('d/m') }}</td>
-                            <td class="p-2 text-center">{{ $c->age }} anos</td>
-                            <td class="p-2 text-center">
-                                @php
-                                    $mensagem = "🎉 Olá, {$c->name}! Feliz aniversário! 🎂%0A".
-                                                "A equipe da GlowTime deseja que o seu dia seja repleto de alegria e boas vibrações! 💫%0A%0A".
-                                                "Para celebrar com você, preparamos um desconto especial de 10% em qualquer um de nossos serviços, válido até o fim deste mês.%0A".
-                                                "Aproveite o seu momento e venha se cuidar com a gente! 💖";
-                                @endphp
-                                <a href="https://wa.me/55{{ preg_replace('/\D/', '', $c->phone) }}?text={{ $mensagem }}"
-                                   target="_blank"
-                                   class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded">
-                                    💌 Enviar Mensagem
-                                </a>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold text-pink-600 mb-2">🎉 Próximos Aniversários (10 dias)</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full border border-gray-200 rounded text-left">
+                <thead class="bg-pink-100 text-pink-700">
+                    <tr>
+                        <th class="p-2">Nome</th>
+                        <th class="p-2">E-mail</th>
+                        <th class="p-2">Telefone</th>
+                        <th class="p-2 text-center">Data</th>
+                        <th class="p-2 text-center">Idade</th>
+                        <th class="p-2 text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($alerts as $c)
+                    @php
+                        $mensagem = "🎉 Olá, {$c->name}, Feliz aniversário! 🎂%0A"
+                                  . "A equipe da GlowTime deseja que o seu dia seja repleto de alegria e boas vibrações! 💫%0A%0A"
+                                  . "Para celebrar com você, preparamos um desconto especial de {$discount}% em qualquer um de nossos serviços, válido até o fim deste mês.%0A"
+                                  . "Aproveite o seu momento e venha se cuidar com a gente! 💖";
+                    @endphp
+                    <tr class="border-t hover:bg-gray-50">
+                        <td class="p-2 font-medium">{{ $c->name }}</td>
+                        <td class="p-2">{{ $c->email }}</td>
+                        <td class="p-2">{{ $c->phone }}</td>
+                        <td class="p-2 text-center">{{ \Carbon\Carbon::parse($c->birth_date)->format('d/m') }}</td>
+                        <td class="p-2 text-center">{{ $c->age }} anos</td>
+                        <td class="p-2 text-center">
+                            <a href="https://wa.me/55{{ preg_replace('/\D/', '', $c->phone) }}?text={{ $mensagem }}"
+                               target="_blank"
+                               class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded">
+                                💌 Enviar Mensagem
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+    </div>
     @endif
 
-    {{-- 🔹 Tabela principal --}}
+    {{-- 🔹 TABELA PRINCIPAL --}}
     <div class="overflow-x-auto">
         <h2 class="text-lg font-semibold text-gray-700 mb-2">
             @if($range == 'today')
@@ -95,7 +116,7 @@
             @elseif($range == 'week')
                 🎊 Aniversariantes desta semana
             @else
-                🎁 Aniversariantes deste mês
+                🎁 Aniversariantes de {{ \Carbon\Carbon::create()->month($selectedMonth)->translatedFormat('F') }} / {{ $selectedYear }}
             @endif
         </h2>
 
@@ -115,6 +136,12 @@
             </thead>
             <tbody>
                 @foreach($list as $c)
+                @php
+                    $mensagem = "🎉 Olá, {$c->name}, Feliz aniversário! 🎂%0A"
+                              . "A equipe da GlowTime deseja que o seu dia seja repleto de alegria e boas vibrações! 💫%0A%0A"
+                              . "Para celebrar com você, preparamos um desconto especial de {$discount}% em qualquer um de nossos serviços, válido até o fim deste mês.%0A"
+                              . "Aproveite o seu momento e venha se cuidar com a gente! 💖";
+                @endphp
                 <tr class="border-t hover:bg-gray-50">
                     <td class="p-2 font-medium">{{ $c->name }}</td>
                     <td class="p-2">{{ $c->email }}</td>
@@ -122,12 +149,6 @@
                     <td class="p-2 text-center">{{ \Carbon\Carbon::parse($c->birth_date)->format('d/m') }}</td>
                     <td class="p-2 text-center">{{ $c->age }} anos</td>
                     <td class="p-2 text-center">
-                        @php
-                            $mensagem = "🎉 Olá, {$c->name}! Feliz aniversário! 🎂%0A".
-                                        "A equipe da GlowTime deseja que o seu dia seja repleto de alegria e boas vibrações! 💫%0A%0A".
-                                        "Para celebrar com você, preparamos um desconto especial de 10% em qualquer um de nossos serviços, válido até o fim deste mês.%0A".
-                                        "Aproveite o seu momento e venha se cuidar com a gente! 💖";
-                        @endphp
                         <a href="https://wa.me/55{{ preg_replace('/\D/', '', $c->phone) }}?text={{ $mensagem }}"
                            target="_blank"
                            class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded">
@@ -141,6 +162,7 @@
         @endif
     </div>
 
+    {{-- 🔹 RODAPÉ --}}
     <div class="mt-6 flex justify-end gap-4 text-sm">
         <a href="{{ route('reports.finance.monthly') }}" class="text-pink-600 hover:underline">
             💸 Ver relatórios financeiros
@@ -148,8 +170,8 @@
     </div>
 
     <p class="text-xs text-gray-500 mt-6">
-        * Considera apenas clientes com data de nascimento cadastrada no sistema.  
-        * O botão <strong>“Enviar Mensagem”</strong> abre o WhatsApp com uma mensagem personalizada de campanha.
+        * Considera apenas clientes com data de nascimento cadastrada. <br>
+        * O botão <strong>“Enviar Mensagem”</strong> abre o WhatsApp com a mensagem personalizada da campanha de aniversário ({{ $discount }}% de desconto).
     </p>
 </div>
 @endsection

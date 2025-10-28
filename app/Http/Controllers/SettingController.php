@@ -7,21 +7,36 @@ use App\Models\Setting;
 
 class SettingController extends Controller
 {
-    public function edit()
+    /**
+     * Exibe o formulário de configurações.
+     */
+    public function index()
     {
-        $discount = Setting::getValue('birthday_discount', 10); // valor padrão 10%
-        return view('settings.edit', compact('discount'));
+        // Busca o valor atual do desconto (padrão 10%)
+        $discountSetting = Setting::firstOrCreate(
+            ['key' => 'birthday_discount'],
+            ['value' => 10]
+        );
+
+        return view('settings.index', ['discount' => $discountSetting->value]);
     }
 
+    /**
+     * Atualiza o desconto de aniversário.
+     */
     public function update(Request $request)
     {
         $request->validate([
-            'birthday_discount' => 'required|numeric|min:0|max:100',
+            'discount' => 'required|numeric|min:0|max:100',
         ]);
 
-        Setting::setValue('birthday_discount', $request->birthday_discount);
+        Setting::updateOrCreate(
+            ['key' => 'birthday_discount'],
+            ['value' => $request->discount]
+        );
 
-        return redirect()->route('settings.edit')
-            ->with('success', 'Configuração atualizada com sucesso!');
+        return redirect()
+            ->route('settings.index')
+            ->with('success', '🎉 Percentual de desconto atualizado com sucesso!');
     }
 }
