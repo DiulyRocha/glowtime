@@ -12,6 +12,8 @@ use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\BirthdayReportsController;
+use App\Http\Controllers\InactiveClientsController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,10 +21,8 @@ use App\Http\Controllers\BirthdayReportsController;
 |--------------------------------------------------------------------------
 */
 
-// Redireciona para o painel (ou login)
-Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+// Redireciona para o painel ou login
+Route::get('/', fn() => redirect()->route('dashboard'));
 
 // Login e Logout
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -39,7 +39,11 @@ Route::post('/logout', function () {
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Painel principal (abre o calendário)
+    /*
+    |--------------------------------------------------------------------------
+    | 🏠 Dashboard
+    |--------------------------------------------------------------------------
+    */
     Route::get('/dashboard', [AppointmentController::class, 'calendar'])->name('dashboard');
 
     /*
@@ -52,7 +56,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | 🧾 CRUDs principais
+    | 🧾 CRUDs Principais
     |--------------------------------------------------------------------------
     */
     Route::resource('clients', ClientController::class);
@@ -77,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | 📋 Relatório de Agendamentos
+    | 📋 Relatórios de Agendamentos
     |--------------------------------------------------------------------------
     */
     Route::get('/reports/appointments', [AppointmentController::class, 'report'])
@@ -93,17 +97,27 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | 💤 Relatório de Clientes Inativas (60+ dias)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/reports/inactive-clients', [InactiveClientsController::class, 'index'])
+        ->name('reports.inactive_clients');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ⚙️ Configurações do Sistema
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+    /*
+    |--------------------------------------------------------------------------
     | 👤 Perfil do Usuário
     |--------------------------------------------------------------------------
     */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    // ⚙️ Configurações do Sistema
-    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
-
-
 
     /*
     |--------------------------------------------------------------------------
