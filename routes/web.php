@@ -101,7 +101,8 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/reports/inactive-clients', [InactiveClientsController::class, 'index'])
-        ->name('reports.inactive_clients');
+    ->name('reports.inactive');
+
 
     /*
     |--------------------------------------------------------------------------

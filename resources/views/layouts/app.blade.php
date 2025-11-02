@@ -25,6 +25,8 @@
 
             <!-- Menu -->
             <nav class="flex-1 p-4 space-y-2">
+
+                <!-- PAINEL PRINCIPAL -->
                 <a href="{{ route('dashboard') }}"
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->routeIs('dashboard') ? 'bg-pink-600' : '' }}">
                     Painel
@@ -34,6 +36,10 @@
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('reports/appointments') ? 'bg-pink-600' : '' }}">
                     Relatório de Agendamentos
                 </a>
+
+                <!-- CADASTROS -->
+                <hr class="border-gray-700 my-2">
+                <span class="text-gray-400 text-xs uppercase px-4">Cadastros</span>
 
                 <a href="{{ route('clients.index') }}"
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('clients*') ? 'bg-pink-600' : '' }}">
@@ -50,7 +56,7 @@
                     Profissionais
                 </a>
 
-                <!-- Relatórios -->
+                <!-- RELATÓRIOS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Relatórios</span>
 
@@ -68,17 +74,17 @@
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('reports/finance/yearly') ? 'bg-pink-600' : '' }}">
                     Anual
                 </a>
+
+                <!-- CONFIGURAÇÕES -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Configurações</span>
 
                 <a href="{{ route('settings.index') }}"
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('settings') ? 'bg-pink-600' : '' }}">
-                    Desconto de Aniversário
+                    ⚙️ Descontos e Preferências
                 </a>
 
-
-
-                <!-- 🔔 ALERTA DE ANIVERSARIANTES -->
+                <!-- ALERTAS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Alertas</span>
 
@@ -86,24 +92,25 @@
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('reports/birthdays') ? 'bg-pink-600' : '' }}">
                     🎂 Aniversariantes
                     @if(isset($countBirthdays) && $countBirthdays > 0)
-                    <span class="ml-2 bg-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                        {{ $countBirthdays }}
-                    </span>
+                        <span class="ml-2 bg-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $countBirthdays }}
+                        </span>
                     @endif
                 </a>
 
-                <a href="{{ route('reports.inactive_clients') }}"
+                <a href="{{ route('reports.inactive') }}"
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->is('reports/inactive-clients') ? 'bg-pink-600' : '' }}">
                     💤 Clientes Inativas
+                    @if(isset($countInactiveClients) && $countInactiveClients > 0)
+                        <span class="ml-2 bg-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $countInactiveClients }}
+                        </span>
+                    @endif
                 </a>
-
 
             </nav>
 
-
-
-
-            <!-- Usuário -->
+            <!-- USUÁRIO -->
             <div class="p-4 border-t border-gray-700">
                 <div class="font-medium">{{ Auth::user()->name }}</div>
                 <div class="text-sm text-gray-400">{{ Auth::user()->email }}</div>
@@ -118,9 +125,9 @@
         <!-- Main content -->
         <main class="flex-1 p-6">
             @if(session('success'))
-            <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
-                {{ session('success') }}
-            </div>
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                    {{ session('success') }}
+                </div>
             @endif
 
             {{-- Aqui vai o conteúdo de cada página --}}
@@ -128,5 +135,4 @@
         </main>
     </div>
 </body>
-
 </html>

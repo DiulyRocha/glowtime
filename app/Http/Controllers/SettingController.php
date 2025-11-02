@@ -12,31 +12,50 @@ class SettingController extends Controller
      */
     public function index()
     {
-        // Busca o valor atual do desconto (padrão 10%)
-        $discountSetting = Setting::firstOrCreate(
+        // Busca ou cria os valores padrão (10%)
+        $birthdayDiscount = Setting::firstOrCreate(
             ['key' => 'birthday_discount'],
             ['value' => 10]
         );
 
-        return view('settings.index', ['discount' => $discountSetting->value]);
+        $inactiveDiscount = Setting::firstOrCreate(
+            ['key' => 'inactive_discount'],
+            ['value' => 10]
+        );
+
+        // Retorna para a view com ambos os valores
+        return view('settings.index', [
+            'birthday_discount' => $birthdayDiscount->value,
+            'inactive_discount' => $inactiveDiscount->value,
+        ]);
     }
 
     /**
-     * Atualiza o desconto de aniversário.
+     * Atualiza os descontos configurados.
      */
     public function update(Request $request)
     {
+        // Validação dos campos
         $request->validate([
-            'discount' => 'required|numeric|min:0|max:100',
+            'birthday_discount' => 'required|numeric|min:0|max:100',
+            'inactive_discount' => 'required|numeric|min:0|max:100',
         ]);
 
+        // Atualiza ou cria o desconto de aniversário 🎂
         Setting::updateOrCreate(
             ['key' => 'birthday_discount'],
-            ['value' => $request->discount]
+            ['value' => $request->birthday_discount]
         );
 
+        // Atualiza ou cria o desconto de clientes inativas 💤
+        Setting::updateOrCreate(
+            ['key' => 'inactive_discount'],
+            ['value' => $request->inactive_discount]
+        );
+
+        // Retorno com mensagem de sucesso
         return redirect()
             ->route('settings.index')
-            ->with('success', '🎉 Percentual de desconto atualizado com sucesso!');
+            ->with('success', '✅ Configurações de desconto atualizadas com sucesso!');
     }
 }
