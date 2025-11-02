@@ -66,89 +66,123 @@
                     <th class="p-2">Horário</th>
                     <th class="p-2 text-right">Valor</th>
                     <th class="p-2">Status</th>
+                    <th class="p-2 text-center">Lembrete</th>
                     <th class="p-2 text-right">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($appointments as $a)
-                    @php
-                        // Tradução dos status e pagamento
-                        $statusLabel = match($a->status) {
-                            'scheduled' => 'Agendado',
-                            'confirmed' => 'Confirmado',
-                            'done'      => 'Concluído',
-                            'canceled'  => 'Cancelado',
-                            default     => ucfirst($a->status),
-                        };
+                @php
+                // 🔹 Status e pagamento formatados
+                $statusLabel = match($a->status) {
+                'scheduled' => 'Agendado',
+                'confirmed' => 'Confirmado',
+                'done' => 'Concluído',
+                'canceled' => 'Cancelado',
+                default => ucfirst($a->status),
+                };
 
-                        $paymentLabel = match($a->payment_status) {
-                            'paid'    => 'Pago 💰',
-                            'pending' => 'Pendente',
-                            default   => '',
-                        };
+                $paymentLabel = match($a->payment_status) {
+                'paid' => 'Pago 💰',
+                'pending' => 'Pendente',
+                default => '',
+                };
 
-                        $bgColor = match(true) {
-                            $a->payment_status === 'paid'    => 'bg-green-100 text-green-800',
-                            $a->payment_status === 'pending' => 'bg-yellow-100 text-yellow-800',
-                            $a->status === 'canceled'        => 'bg-gray-200 text-gray-700',
-                            default                          => 'bg-pink-100 text-pink-700',
-                        };
-                    @endphp
+                $bgColor = match(true) {
+                $a->payment_status === 'paid' => 'bg-green-100 text-green-800',
+                $a->payment_status === 'pending' => 'bg-yellow-100 text-yellow-800',
+                $a->status === 'canceled' => 'bg-gray-200 text-gray-700',
+                default => 'bg-pink-100 text-pink-700',
+                };
 
-                    <tr class="border-t hover:bg-gray-50">
-                        <td class="p-2">{{ $a->client->name ?? '-' }}</td>
-                        <td class="p-2">{{ $a->service->name ?? '-' }}</td>
-                        <td class="p-2">{{ $a->professional->name ?? '-' }}</td>
-                        <td class="p-2">{{ \Carbon\Carbon::parse($a->date)->format('d/m/Y') }}</td>
-                        <td class="p-2">
-                            {{ \Carbon\Carbon::parse($a->start_time)->format('H:i') }} -
-                            {{ \Carbon\Carbon::parse($a->end_time)->format('H:i') }}
-                        </td>
-                        <td class="p-2 text-right">R$ {{ number_format($a->price_cents / 100, 2, ',', '.') }}</td>
-                        <td class="p-2">
-                            <span class="px-2 py-1 text-xs rounded font-semibold {{ $bgColor }}">
-                                {{ $statusLabel }} — {{ $paymentLabel }}
-                            </span>
-                        </td>
+                // 🔔 Configuração do lembrete via WhatsApp
+                $inicio = \Carbon\Carbon::parse(($a->date ?? '') . ' ' . ($a->start_time ?? '00:00'));
+                $diaDoLembrete = $inicio->copy()->subDay();
+                $enviarHoje = now()->isSameDay($diaDoLembrete);
 
-                        {{-- 🔸 Ações --}}
-                        <td class="p-2 text-right space-x-2">
-                            {{-- Botão editar --}}
-                            <a href="{{ route('appointments.edit', $a->id) }}"
-                                class="bg-blue-500 hover:bg-blue-400 text-white px-3 py-1 rounded text-sm">
-                                Editar
-                            </a>
+                $fone = preg_replace('/\D/', '', $a->client->phone ?? '');
 
-                            {{-- Botão marcar como pago --}}
-                            @if($a->payment_status !== 'paid')
-                                <form action="{{ route('appointments.markPaid', $a->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit"
-                                        class="bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1 rounded text-sm">
-                                        Pago
-                                    </button>
-                                </form>
-                            @endif
+                // 💬 Mensagem personalizada
+                $mensagem = "Olá, {$a->client->name}! Tudo bem?\n\n"
+                . "Passando para lembrar do seu atendimento na *GlowTime* "
+                . "amanhã, *" . $inicio->translatedFormat('l, d/m') . "* às *" . $inicio->format('H:i') . "h*.\n\n"
+                . "Estamos ansiosos para te receber e deixar seu dia ainda mais especial!\n\n"
+                . "Caso precise remarcar ou tiver algum imprevisto, é só avisar por aqui.";
 
-                            {{-- Botão excluir --}}
-                            <form action="{{ route('appointments.destroy', $a->id) }}" method="POST"
-                                  class="inline delete-form">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button"
-                                    class="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded text-sm delete-btn">
-                                    Excluir
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                $waLink = "https://wa.me/55{$fone}?text=" . rawurlencode($mensagem);
+
+                @endphp
+
+                <tr class="border-t hover:bg-gray-50">
+                    <td class="p-2">{{ $a->client->name ?? '-' }}</td>
+                    <td class="p-2">{{ $a->service->name ?? '-' }}</td>
+                    <td class="p-2">{{ $a->professional->name ?? '-' }}</td>
+                    <td class="p-2">{{ \Carbon\Carbon::parse($a->date)->format('d/m/Y') }}</td>
+                    <td class="p-2">
+                        {{ \Carbon\Carbon::parse($a->start_time)->format('H:i') }} -
+                        {{ \Carbon\Carbon::parse($a->end_time)->format('H:i') }}
+                    </td>
+                    <td class="p-2 text-right">R$ {{ number_format($a->price_cents / 100, 2, ',', '.') }}</td>
+                    <td class="p-2">
+                        <span class="px-2 py-1 text-xs rounded font-semibold {{ $bgColor }}">
+                            {{ $statusLabel }} — {{ $paymentLabel }}
+                        </span>
+                    </td>
+
+                    {{-- 🔔 Lembrete via WhatsApp --}}
+                    <td class="p-2 text-center">
+                        @if($enviarHoje && $fone)
+                        <a href="{{ $waLink }}" target="_blank"
+                            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white text-sm px-3 py-1.5 rounded">
+                            📲 Enviar Lembrete
+                        </a>
+                        @elseif(!$fone)
+                        <span class="text-xs text-red-500">Sem telefone</span>
+                        @else
+                        <span class="text-xs text-gray-500">
+                            Disponível em {{ $diaDoLembrete->format('d/m') }}
+                        </span>
+                        @endif
+                    </td>
+
+                    {{-- 🔸 Ações --}}
+                    <td class="p-2 text-right space-x-2">
+                        {{-- Editar --}}
+                        <a href="{{ route('appointments.edit', $a->id) }}"
+                            class="bg-blue-500 hover:bg-blue-400 text-white px-3 py-1 rounded text-sm">
+                            Editar
+                        </a>
+
+                        {{-- Marcar como pago --}}
+                        @if($a->payment_status !== 'paid')
+                        <form action="{{ route('appointments.markPaid', $a->id) }}" method="POST" class="inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                class="bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1 rounded text-sm">
+                                Pago
+                            </button>
+                        </form>
+                        @endif
+
+                        {{-- Excluir --}}
+                        <form action="{{ route('appointments.destroy', $a->id) }}" method="POST"
+                            class="inline delete-form">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button"
+                                class="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded text-sm delete-btn">
+                                Excluir
+                            </button>
+                        </form>
+                    </td>
+                </tr>
                 @empty
-                    <tr>
-                        <td colspan="8" class="p-4 text-center text-gray-500">
-                            Nenhum agendamento encontrado.
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="9" class="p-4 text-center text-gray-500">
+                        Nenhum agendamento encontrado.
+                    </td>
+                </tr>
                 @endforelse
             </tbody>
         </table>
@@ -164,7 +198,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             const form = this.closest('form');
 
             Swal.fire({
