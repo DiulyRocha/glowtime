@@ -71,11 +71,7 @@ class AppointmentController extends Controller
         // 🔹 Cria o agendamento
         $appointment = Appointment::create($validated);
 
-        // 🔹 Envia notificação por e-mail (somente se o cliente tiver e-mail)
-        if ($appointment->client && $appointment->client->email) {
-            $appointment->client->notify(new AppointmentCreatedNotification($appointment));
-        }
-
+       
         // 🔹 Retorno JSON (para o calendário)
         if ($request->isJson()) {
             return response()->json([
