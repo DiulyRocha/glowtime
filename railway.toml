@@ -1,2 +1,2 @@
 [build]
-dockerfile = "Dockerfile"
+builder = "docker"
