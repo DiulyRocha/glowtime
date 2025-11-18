@@ -1,27 +1,21 @@
-FROM dunglas/frankenphp:latest
+FROM php:8.2-cli
 
-# Instalar dependências do sistema
-RUN apk add --no-cache bash git curl oniguruma-dev libxml2-dev mariadb-client nodejs npm
+# Instalar extensões necessárias (usando apt-get, não apk)
+RUN apt-get update && apt-get install -y \
+    unzip git curl libpng-dev libonig-dev libxml2-dev mariadb-client nodejs npm
 
-# Instalar extensões PHP
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath
+# Instalar Composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
+# Preparar aplicação
 WORKDIR /app
-
 COPY . .
 
-# Instalar Composer e dependências
 RUN composer install --no-dev --optimize-autoloader
-
-# Instalar Node e buildar assets
 RUN npm install && npm run build
 
-# Garantir permissões de storage
-RUN chmod -R 777 storage bootstrap/cache
-
-# Porta usada pelo Railway
+# Porta padrão do Railway
 ENV PORT=8080
 EXPOSE 8080
 
-# Servir Laravel com FrankenPHP (MUITO mais rápido que artisan)
-CMD ["php", "artisan", "frankenphp:serve", "--host=0.0.0.0", "--port=8080"]
+CMD php artisan serve --host 0.0.0.0 --port $PORT
