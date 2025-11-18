@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# Instalar extensões necessárias (usando apt-get, não apk)
+# Instalar extensões necessárias
 RUN apt-get update && apt-get install -y \
     unzip git curl libpng-dev libonig-dev libxml2-dev mariadb-client nodejs npm
 
@@ -18,4 +18,5 @@ RUN npm install && npm run build
 ENV PORT=8080
 EXPOSE 8080
 
-CMD php artisan serve --host 0.0.0.0 --port $PORT
+# ⬇️ NOVO COMANDO (SEM artisan serve!)
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t public"]
