@@ -19,4 +19,5 @@ ENV PORT=8080
 EXPOSE 8080
 
 # ⬇️ NOVO COMANDO (SEM artisan serve!)
-CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t public"]
+CMD php -S 0.0.0.0:$PORT -t public
+
