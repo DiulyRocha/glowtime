@@ -1,22 +1,32 @@
-FROM php:8.2-cli
+FROM php:8.2-fpm
 
-# Instalar dependências do sistema e extensões PHP
+# Instalar dependências
 RUN apt-get update && apt-get install -y \
-    git curl unzip libpng-dev libjpeg-dev libfreetype6-dev \
-    libonig-dev libxml2-dev mariadb-client nodejs npm \
-    && docker-php-ext-install pdo pdo_mysql
+    unzip libzip-dev libpng-dev libonig-dev libxml2-dev curl git \
+    && docker-php-ext-install pdo pdo_mysql zip gd
 
-# Instalar Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+# Instalar Node
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
 
-# Preparar aplicação
-WORKDIR /app
+# Copiar projeto
+WORKDIR /var/www/html
 COPY . .
 
+# Instalar dependências PHP
 RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
 
-ENV PORT=8080
-EXPOSE 8080
+# Instalar dependências JS e gerar build
+RUN npm install
+RUN npm run build
 
-CMD php -S 0.0.0.0:8080 -t public
+# Copiar o build do Vite para o Public
+RUN cp -r public/build /var/www/html/public/build
+
+# Permissões
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Expor porta
+EXPOSE 8000
+
+CMD php artisan serve --host=0.0.0.0 --port=8000
