@@ -26,11 +26,12 @@ RUN composer install --no-dev --optimize-autoloader \
 ENV PORT=8080
 EXPOSE 8080
 
-# Permite rodar o script de migração
-RUN chmod +x /app/railway-migrate.sh
+# Rodar migrations automaticamente
+RUN php artisan migrate --force
 
+ENV PORT=8080
+EXPOSE 8080
 
-# Servidor PHP embutido apontando para /public
-CMD sh /app/railway-migrate.sh && php -S 0.0.0.0:$PORT -t public
+CMD php -S 0.0.0.0:$PORT -t public
 
 
