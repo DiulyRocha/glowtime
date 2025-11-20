@@ -7,39 +7,39 @@
 
     <title>{{ config('app.name', 'GlowTime') }}</title>
 
-    {{-- Carregar arquivos do build Vite (produção) --}}
+    {{-- ===== CARREGAR BUILD DO VITE (PRODUÇÃO) ===== --}}
     @php
+        $manifestPath = public_path('build/manifest.json');
+
         $cssFile = null;
         $jsFile = null;
         $calendarJs = null;
 
-        $manifestPath = public_path('build/manifest.json');
-
         if (file_exists($manifestPath)) {
             $manifest = json_decode(file_get_contents($manifestPath), true);
 
+            // Arquivos reais do build
             $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
             $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
             $calendarJs = $manifest['resources/js/calendar.js']['file'] ?? null;
         }
     @endphp
 
-    {{-- CSS --}}
-    @if($cssFile)
+    {{-- CSS principal --}}
+    @if ($cssFile)
         <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
     @endif
 
 </head>
 
 <body class="font-sans antialiased">
-
     {{-- JS principal --}}
-    @if($jsFile)
+    @if ($jsFile)
         <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
     @endif
 
-    {{-- JS calendário --}}
-    @if($calendarJs)
+    {{-- JS do calendário --}}
+    @if ($calendarJs)
         <script type="module" src="{{ asset('build/' . $calendarJs) }}"></script>
     @endif
 
@@ -47,6 +47,7 @@
 
         <!-- Sidebar -->
         <aside class="w-64 bg-black text-white flex flex-col">
+
             <!-- Logo -->
             <div class="h-16 flex items-center justify-center border-b border-pink-600">
                 <img src="{{ asset('imagens/logo/logo.png') }}" alt="Logo" class="h-16 mr-2">
@@ -57,6 +58,8 @@
 
             <!-- Menu -->
             <nav class="flex-1 p-4 space-y-2">
+
+                <!-- PAINEL PRINCIPAL -->
                 <a href="{{ route('dashboard') }}"
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->routeIs('dashboard') ? 'bg-pink-600' : '' }}">
                     Painel
@@ -67,6 +70,7 @@
                     Relatório de Agendamentos
                 </a>
 
+                <!-- CADASTROS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Cadastros</span>
 
@@ -85,6 +89,7 @@
                     Profissionais
                 </a>
 
+                <!-- RELATÓRIOS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Relatórios</span>
 
@@ -103,6 +108,7 @@
                     Anual
                 </a>
 
+                <!-- CONFIGURAÇÕES -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Configurações</span>
 
@@ -111,6 +117,7 @@
                     ⚙️ Descontos e Preferências
                 </a>
 
+                <!-- ALERTAS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Alertas</span>
 
@@ -158,6 +165,7 @@
 
             @yield('content')
         </main>
+
     </div>
 
 </body>
