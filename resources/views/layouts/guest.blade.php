@@ -15,10 +15,11 @@
             $manifest = json_decode(file_get_contents($manifestPath), true);
 
             $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
-            $jsFile  = $manifest['resources/js/app.js']['file'] ?? null;
+            $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
         }
     @endphp
 
+    {{-- CSS --}}
     @if ($cssFile)
         <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
     @endif
@@ -32,9 +33,9 @@
         </div>
     </div>
 
+    {{-- JS --}}
     @if ($jsFile)
         <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
     @endif
-
 </body>
 </html>
