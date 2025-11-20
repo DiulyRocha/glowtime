@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,14 +8,12 @@
 
     @php
         $manifestPath = public_path('build/manifest.json');
-
         $cssFile = null;
-        $jsFile  = null;
+        $jsFile = null;
 
         if (file_exists($manifestPath)) {
             $manifest = json_decode(file_get_contents($manifestPath), true);
 
-            // Carregar referentes ao manifest real
             $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
             $jsFile  = $manifest['resources/js/app.js']['file'] ?? null;
         }
@@ -38,5 +35,6 @@
     @if ($jsFile)
         <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
     @endif
+
 </body>
 </html>
