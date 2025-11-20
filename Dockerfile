@@ -1,28 +1,28 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
-# Instalar dependências do sistema
+
+# Instalar dependências do sistema e extensões PHP
 RUN apt-get update && apt-get install -y \
-    unzip libzip-dev libpng-dev libonig-dev libxml2-dev curl git \
-    && docker-php-ext-install pdo pdo_mysql zip gd
+    git curl unzip libpng-dev libjpeg-dev libfreetype6-dev \
+    libonig-dev libxml2-dev mariadb-client nodejs npm \
+    && docker-php-ext-install pdo pdo_mysql
+
 
 # Instalar Composer
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Instalar Node.js (necessário para Vite)
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
 
-# Diretório de trabalho
-WORKDIR /var/www/html
-
-# Copiar os arquivos
+# Preparar aplicação
+WORKDIR /app
 COPY . .
 
-# Instalar dependências PHP
-RUN composer install --no-dev --optimize-autoloader
 
-# Instalar dependências JS e gerar build
+RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 
-CMD ["php-fpm"]
+
+ENV PORT=8080
+EXPOSE 8080
+
+
+CMD php -S 0.0.0.0:8080 -t public
