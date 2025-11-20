@@ -7,22 +7,25 @@
 
     <title>{{ config('app.name', 'GlowTime') }}</title>
 
-    {{-- Carregar CSS/JS do build do Vite para produção --}}
+    {{-- Carregar CSS/JS do build para produção --}}
     @php
         $manifestPath = public_path('build/manifest.json');
+        $cssFile = null;
+        $jsFile = null;
 
         if (file_exists($manifestPath)) {
             $manifest = json_decode(file_get_contents($manifestPath), true);
+
             $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
             $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
         }
     @endphp
 
-    @if(!empty($cssFile))
+    @if ($cssFile)
         <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
     @endif
 
-    @if(!empty($jsFile))
+    @if ($jsFile)
         <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
     @endif
 </head>
@@ -32,6 +35,7 @@
 
         <!-- Sidebar -->
         <aside class="w-64 bg-black text-white flex flex-col">
+
             <!-- Logo -->
             <div class="h-16 flex items-center justify-center border-b border-pink-600">
                 <img src="{{ asset('imagens/logo/logo.png') }}" alt="Logo" class="h-16 mr-2">
@@ -43,7 +47,6 @@
             <!-- Menu -->
             <nav class="flex-1 p-4 space-y-2">
 
-                <!-- PAINEL PRINCIPAL -->
                 <a href="{{ route('dashboard') }}"
                     class="block px-4 py-2 rounded hover:bg-pink-600 {{ request()->routeIs('dashboard') ? 'bg-pink-600' : '' }}">
                     Painel
@@ -54,7 +57,6 @@
                     Relatório de Agendamentos
                 </a>
 
-                <!-- CADASTROS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Cadastros</span>
 
@@ -73,7 +75,6 @@
                     Profissionais
                 </a>
 
-                <!-- RELATÓRIOS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Relatórios</span>
 
@@ -92,7 +93,6 @@
                     Anual
                 </a>
 
-                <!-- CONFIGURAÇÕES -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Configurações</span>
 
@@ -101,7 +101,6 @@
                     ⚙️ Descontos e Preferências
                 </a>
 
-                <!-- ALERTAS -->
                 <hr class="border-gray-700 my-2">
                 <span class="text-gray-400 text-xs uppercase px-4">Alertas</span>
 
@@ -127,7 +126,7 @@
 
             </nav>
 
-            <!-- USUÁRIO -->
+            <!-- Usuário -->
             <div class="p-4 border-t border-gray-700">
                 <div class="font-medium">{{ Auth::user()->name }}</div>
                 <div class="text-sm text-gray-400">{{ Auth::user()->email }}</div>
@@ -137,9 +136,10 @@
                     <button type="submit" class="text-red-500 hover:underline">Sair</button>
                 </form>
             </div>
+
         </aside>
 
-        <!-- Main content -->
+        <!-- Main Content -->
         <main class="flex-1 p-6">
             @if(session('success'))
                 <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
@@ -147,9 +147,9 @@
                 </div>
             @endif
 
-            {{-- Aqui vai o conteúdo de cada página --}}
             @yield('content')
         </main>
+
     </div>
 </body>
 </html>
