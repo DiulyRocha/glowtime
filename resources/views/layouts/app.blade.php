@@ -7,25 +7,12 @@
 
     <title>{{ config('app.name', 'GlowTime') }}</title>
 
-    @php
-        $manifestPath = public_path('build/manifest.json');
-
-        $cssFile = null;
-        $jsFile = null;
-        $calendarJs = null;
-
-        if (file_exists($manifestPath)) {
-            $manifest = json_decode(file_get_contents($manifestPath), true);
-
-            $cssFile      = $manifest['resources/css/app.css']['file'] ?? null;
-            $jsFile       = $manifest['resources/js/app.js']['file'] ?? null;
-            $calendarJs   = $manifest['resources/js/calendar.js']['file'] ?? null;
-        }
-    @endphp
-
-    @if ($cssFile)
-        <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
-    @endif
+    {{-- CORREÇÃO: carregar assets diretamente pelo Vite --}}
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+        'resources/js/calendar.js'
+    ])
 </head>
 
 <body class="font-sans antialiased">
@@ -149,15 +136,6 @@
         </main>
 
     </div>
-
-    {{-- Adiciona scripts NO FINAL --}}
-    @if ($jsFile)
-        <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
-    @endif
-
-    @if ($calendarJs)
-        <script type="module" src="{{ asset('build/' . $calendarJs) }}"></script>
-    @endif
 
 </body>
 </html>
