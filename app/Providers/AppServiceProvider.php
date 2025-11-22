@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,31 +18,11 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
-{
-    view()->composer('*', function ($view) {
-        try {
-            // busca clientes com aniversário nos próximos 10 dias
-            $clients = \App\Models\Client::whereNotNull('birthdate')->get();
-
-            $today = now();
-            $alerts = $clients->filter(function ($c) use ($today) {
-                $bday = \Carbon\Carbon::parse($c->birthdate);
-                $next = $bday->copy()->year($today->year);
-                if ($next->lt($today)) {
-                    $next->addYear();
-                }
-                return $next->between($today, $today->copy()->addDays(10));
-            });
-
-            // conta quantos aniversariantes tem nos próximos 10 dias
-            $birthdayAlertsCount = $alerts->count();
-        } catch (\Exception $e) {
-            $birthdayAlertsCount = 0;
+    public function boot(): void
+    {
+        // Forçar https em produção (Railway)
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
         }
-
-        $view->with('birthdayAlertsCount', $birthdayAlertsCount);
-    });
-}
-
+    }
 }
