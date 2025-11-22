@@ -16,7 +16,7 @@
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
                 <option value="">Selecione o cliente</option>
                 @foreach ($clients as $client)
-                <option value="{{ $client->id }}">{{ $client->name }}</option>
+                    <option value="{{ $client->id }}">{{ $client->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -28,11 +28,10 @@
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
                 <option value="">Selecione o serviço</option>
                 @foreach ($services as $service)
-                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                    <option value="{{ $service->id }}">{{ $service->name }}</option>
                 @endforeach
             </select>
         </div>
-
 
         {{-- Profissional --}}
         <div>
@@ -41,7 +40,7 @@
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
                 <option value="">Selecione o profissional</option>
                 @foreach ($professionals as $professional)
-                <option value="{{ $professional->id }}">{{ $professional->name }}</option>
+                    <option value="{{ $professional->id }}">{{ $professional->name }}</option>
                 @endforeach
             </select>
         </div>

@@ -16,9 +16,9 @@
             <select name="client_id" id="client_id" required
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
                 @foreach ($clients as $client)
-                <option value="{{ $client->id }}" {{ $appointment->client_id == $client->id ? 'selected' : '' }}>
-                    {{ $client->name }}
-                </option>
+                    <option value="{{ $client->id }}" {{ $appointment->client_id == $client->id ? 'selected' : '' }}>
+                        {{ $client->name }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -29,9 +29,9 @@
             <select name="service_id" id="service_id" required
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
                 @foreach ($services as $service)
-                <option value="{{ $service->id }}" {{ $appointment->service_id == $service->id ? 'selected' : '' }}>
-                    {{ $service->name }}
-                </option>
+                    <option value="{{ $service->id }}" {{ $appointment->service_id == $service->id ? 'selected' : '' }}>
+                        {{ $service->name }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -42,28 +42,34 @@
             <select name="professional_id" id="professional_id" required
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
                 @foreach ($professionals as $professional)
-                <option value="{{ $professional->id }}" {{ $appointment->professional_id == $professional->id ? 'selected' : '' }}>
-                    {{ $professional->name }}
-                </option>
+                    <option value="{{ $professional->id }}" {{ $appointment->professional_id == $professional->id ? 'selected' : '' }}>
+                        {{ $professional->name }}
+                    </option>
                 @endforeach
             </select>
         </div>
 
-        {{-- Data e horário --}}
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
-                <input type="date" name="date" id="date" value="{{ $appointment->date }}" required
-                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
-            </div>
+        {{-- Data --}}
+        <div>
+            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+            <input type="date" name="date" id="date" required
+                value="{{ $appointment->date }}"
+                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
+        </div>
+
+        {{-- Horários --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Início</label>
-                <input type="time" name="start_time" id="start_time" value="{{ $appointment->start_time }}" required
+                <input type="datetime-local" name="start_time" id="start_time" required
+                    value="{{ $appointment->start_time }}"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
             </div>
+
             <div>
                 <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">Término</label>
-                <input type="time" name="end_time" id="end_time" value="{{ $appointment->end_time }}" required
+                <input type="datetime-local" name="end_time" id="end_time" required
+                    value="{{ $appointment->end_time }}"
                     class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
             </div>
         </div>
@@ -71,15 +77,16 @@
         {{-- Valor --}}
         <div>
             <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
-            <input type="number" step="0.01" min="0" name="price" id="price"
-                value="{{ $appointment->price_cents / 100 }}"
+            <input type="number" step="0.01" min="0" name="price" id="price" required
+                value="{{ number_format($appointment->price_cents / 100, 2, '.', '') }}"
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
         </div>
 
         {{-- Status --}}
         <div>
             <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select name="status" id="status" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
+            <select name="status" id="status"
+                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500">
                 <option value="scheduled" {{ $appointment->status == 'scheduled' ? 'selected' : '' }}>Agendado</option>
                 <option value="done" {{ $appointment->status == 'done' ? 'selected' : '' }}>Concluído</option>
                 <option value="canceled" {{ $appointment->status == 'canceled' ? 'selected' : '' }}>Cancelado</option>
@@ -95,7 +102,6 @@
                 <option value="paid" {{ $appointment->payment_status == 'paid' ? 'selected' : '' }}>Pago</option>
             </select>
         </div>
-
 
         {{-- Botões --}}
         <div class="flex justify-end mt-4">
